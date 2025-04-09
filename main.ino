@@ -9,7 +9,7 @@ const char* ssid = "KWIC-DEMO-ROOM";
 const char* password = "1234Qwer";
 
 // Firebase Functions 배포 후 받은 URL
-const char* firebaseUrl = "https://us-central1-siscodb-23511.cloudfunctions.net/deviceHandler";
+const char* firebaseUrl = "https://devicehandler-dwjubrnesq-uc.a.run.app";
 
 // 버튼 핀 설정 (예: GPIO0)
 
@@ -111,15 +111,6 @@ void loop() {
   // broadcasting wifi
   if (broadcasting) {
     for(int i = 0; i < ssidnum; i++) {
-      // Set random MAC address
-      /*
-      packet[10] = packet[16] = random(256);
-      packet[11] = packet[17] = random(256);
-      packet[12] = packet[18] = random(256);
-      packet[13] = packet[19] = random(256);
-      packet[14] = packet[20] = random(256);
-      packet[15] = packet[21] = random(256);
-      */
       uint8_t mac[6];
       esp_efuse_mac_get_default(mac);
       
