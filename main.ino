@@ -12,16 +12,12 @@ const char* password = "1234Qwer";
 const char* firebaseUrl = "https://us-central1-siscodb-23511.cloudfunctions.net/deviceHandler";
 
 // 버튼 핀 설정 (예: GPIO0)
-//const int buttonPin = 13;//---------------------------------------------------------------------------
-
-//bool lastButtonState = LOW;//---------------------------------------------------------------------------
 
 // Potentiometer is connected to GPIO 34 (Analog ADC1_CH6) 
 const uint16_t potPin = 34;
 // variable for storing the potentiometer value
 uint16_t potValue = 0, lastpotValue = 0;
 
-//......................................
 // Beacon Packet buffer
 uint8_t packet[128] = { 
   0x80, 0x00,             // Frame Control
@@ -41,7 +37,6 @@ char ssids[ssidnum][32] = {
 };
 
 bool broadcasting = false;
-//String serialCommand;
 
 void beacon_mode() {
   WiFi.mode(WIFI_MODE_AP);
@@ -64,82 +59,18 @@ void button_mode() {
 
 void setup() {
   Serial.begin(115200);
-  //pinMode(buttonPin, INPUT_PULLDOWN);
+
   beacon_mode();
   delay(100);
   button_mode();
+}
 
-  //delay(1000);
-  
-  //WiFi.mode(WIFI_MODE_AP);
-  //wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-  //esp_wifi_init(&cfg);
-  //esp_wifi_set_storage(WIFI_STORAGE_RAM);
-  //esp_wifi_set_mode(WIFI_MODE_AP);
-  //esp_wifi_start();
-  
-  //Serial.println("Beacon Spam Tool");
-  //Serial.println("Commands:");
-  //Serial.println("start - Start broadcasting");
-  //Serial.println("stop - Stop broadcasting");
-  //Serial.println("list - List current SSIDs");
-  //Serial.println("set <position> <name> - Set new SSID (position 0-9)");
-  //Serial.println("status - Show current status");
-}
-/*
-void handleSerialCommands() {
-  if (Serial.available()) {
-    serialCommand = Serial.readStringUntil('\n');
-    serialCommand.trim();
-    
-    if (serialCommand == "start") {
-      broadcasting = true;
-      Serial.println("Broadcasting started");
-    }
-    else if (serialCommand == "stop") {
-      broadcasting = false;
-      Serial.println("Broadcasting stopped");
-    }
-    else if (serialCommand == "list") {
-      Serial.println("Current SSIDs:");
-      for (int i = 0; i < ssidnum; i++) {
-        Serial.print(i);
-        Serial.print(": ");
-        Serial.println(ssids[i]);
-      }
-    }
-    else if (serialCommand == "status") {
-      Serial.print("Broadcasting: ");
-      Serial.println(broadcasting ? "Active" : "Stopped");
-    }
-    
-    else if (serialCommand.startsWith("set ")) {
-      int pos = serialCommand.substring(4, 5).toInt();
-      String newSSID = serialCommand.substring(6);
-      
-      if (pos >= 0 && pos < 10 && newSSID.length() > 0 && newSSID.length() < 32) {
-        newSSID.toCharArray(ssids[pos], 32);
-        Serial.print("Updated SSID at position ");
-        Serial.print(pos);
-        Serial.print(" to: ");
-        Serial.println(ssids[pos]);
-      } else {
-        Serial.println("Invalid position or SSID length");
-      }
-    }
-  }
-}
-*/
 void loop() {
-  //handleSerialCommands();
-  broadcasting = true;//
+  broadcasting = true;
 
-  potValue = (analogRead(potPin))/10;
-  
-  
-  //bool buttonState = digitalRead(buttonPin);//---------------------------------------------------------------------------
+  potValue = (analogRead(potPin))/10; // adc를 통해 스위치 구분
 
-  if (potValue>30 && lastpotValue<20) { //1st pin:409, 2nd pin : 228, 3rd pin : 113, 4th pin : 36
+  if (potValue>30 && lastpotValue<20) { // potValue-1st button:409, 2nd button : 228, 3rd button : 113, 4th button : 36
     Serial.println("🔘 Button pressed!");
 
     // MAC 주소 얻기
@@ -153,10 +84,10 @@ void loop() {
 
     // Firebase Function 호출
     if (WiFi.status() == WL_CONNECTED) {
-      String actions = "??"; // 4
-      if (potValue>350) actions = "register"; // 1
-      else if (potValue>150) actions = "delete"; // 2
-      else if (potValue>50) actions = "danger"; // 3
+      String actions = "??"; // 버튼 4 -> 아직 기능 정하지 않았다
+      if (potValue>350) actions = "register"; // 버튼 1 기기 저장
+      else if (potValue>150) actions = "delete"; // 버튼 2 기기 삭제
+      else if (potValue>50) actions = "danger"; // 버튼 3 위험 신호
       HTTPClient http;
       http.begin(firebaseUrl);
       http.addHeader("Content-Type", "application/json");
@@ -175,8 +106,9 @@ void loop() {
     delay(300); // 디바운스 대기
   }
 
-  lastpotValue = potValue;//---------------------------------------------------------------------------
+  lastpotValue = potValue;
   
+  // broadcasting wifi
   if (broadcasting) {
     for(int i = 0; i < ssidnum; i++) {
       // Set random MAC address
