@@ -84,7 +84,7 @@ void loop() {
 
     // Firebase Function 호출
     if (WiFi.status() == WL_CONNECTED) {
-      String actions = "??"; // 버튼 4 -> 아직 기능 정하지 않았다
+      String actions = "??"; 
       if (potValue>350) actions = "register"; // 버튼 1 기기 저장
       else if (potValue>150) actions = "delete"; // 버튼 2 기기 삭제
       else if (potValue>50) actions = "danger"; // 버튼 3 위험 신호
